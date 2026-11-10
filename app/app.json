@@ -1,0 +1,50 @@
+{
+  "configVersion": "v3",
+  "app": {
+    "appId": 1135778,
+    "appName": "T3 Zepp",
+    "appType": "app",
+    "version": {
+      "code": 17,
+      "name": "0.1.7"
+    },
+    "icon": "icon.png",
+    "vender": "personal",
+    "description": "Unofficial Zepp OS companion for T3 Code on Amazfit watches. Currently supported: Amazfit T-Rex 3 (Zepp OS 4.0).\n\nNot affiliated with T3 Tools. Preview components and the demo build come from the MIT-licensed t3code repository.\n\nThis is an independent community project.\n\nLicense: AGPL-3.0\nGitHub: https://github.com/devarshishimpi/t3zepp"
+  },
+  "permissions": ["data:os.device.info", "device:os.local_storage"],
+  "runtime": {
+    "apiVersion": {
+      "compatible": "4.0",
+      "target": "4.0",
+      "minVersion": "4.0"
+    }
+  },
+  "targets": {
+    "common": {
+      "module": {
+        "page": {
+          "pages": ["page/index"]
+        },
+        "app-side": {
+          "path": "app-side/index"
+        },
+        "setting": {
+          "path": "setting/index"
+        }
+      },
+      "platforms": [
+        { "name": "Amazfit T-Rex 3 Global", "deviceSource": 8716545, "st": "r", "sr": "w480" },
+        { "name": "Amazfit T-Rex 3 China", "deviceSource": 8716544, "st": "r", "sr": "w480" },
+        { "name": "Amazfit T-Rex 3", "deviceSource": 8716547, "st": "r", "sr": "w480" }
+      ],
+      "designWidth": 480
+    }
+  },
+  "i18n": {
+    "en-US": {
+      "appName": "T3 Zepp"
+    }
+  },
+  "defaultLanguage": "en-US"
+}

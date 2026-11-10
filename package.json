@@ -1,0 +1,23 @@
+{
+  "name": "t3zepp-monorepo",
+  "version": "0.1.7",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "app",
+    "worker"
+  ],
+  "scripts": {
+    "test": "npm run test:worker && npm run test:app",
+    "test:worker": "npm test --workspace=worker",
+    "test:app": "npm test --workspace=app",
+    "check": "npm run check:worker && npm run check:app",
+    "check:worker": "npm run check --workspace=worker",
+    "check:app": "npm run check --workspace=app",
+    "dev:worker": "npm run dev --workspace=worker",
+    "dev:app": "npm run dev --workspace=app",
+    "deploy:worker": "npm run deploy --workspace=worker",
+    "build:app": "npm run build --workspace=app",
+    "preview:app": "npm run preview --workspace=app"
+  }
+}

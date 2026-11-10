@@ -147,3 +147,23 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Cloudflare Worker
+.wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
+# Zepp OS Build Output
+dist/
+build/
+*.zab
+*.zpk
+.zeus/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
