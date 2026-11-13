@@ -109,7 +109,7 @@ async function requestBody(request) {
 
 export function createWorker({ readUsage = readT3Usage, clock = () => new Date() } = {}) {
   return {
-    async fetch(request, env) {
+    async fetch(request, env, ctx) {
       const url = new URL(request.url);
       if ((request.method === "GET" || request.method === "HEAD") && url.pathname === "/health") {
         return request.method === "HEAD"
@@ -223,7 +223,9 @@ export function createWorker({ readUsage = readT3Usage, clock = () => new Date()
           }
           customT3Base = device.t3_base_url;
           customT3Token = device.t3_access_token;
-          touchDevice(env.DB, deviceKey);
+          const touch = touchDevice(env.DB, deviceKey);
+          if (ctx?.waitUntil) ctx.waitUntil(touch);
+          else await touch;
         }
 
         if (!customT3Base || !customT3Token) {

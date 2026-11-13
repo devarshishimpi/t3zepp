@@ -412,8 +412,16 @@ test("serves /pair and handles D1 deviceKey pairing and usage flow", async () =>
     },
     body: JSON.stringify({ range: "24h" }),
   });
-  const usageResp = await worker.fetch(usageReq, env);
+  const backgroundTasks = [];
+  const usageResp = await worker.fetch(usageReq, env, {
+    waitUntil(promise) {
+      backgroundTasks.push(promise);
+    },
+  });
   assert.equal(usageResp.status, 200);
+  assert.equal(backgroundTasks.length, 1);
+  await Promise.all(backgroundTasks);
+  assert.equal(devices.get(initData.deviceKey).request_count, 1);
   assert.equal(calls.length, 1);
   assert.equal(calls[0].base, "https://d1-tunnel.example.com");
   assert.equal(calls[0].accessToken, "d1-token-999");
