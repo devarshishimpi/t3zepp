@@ -127,8 +127,8 @@ async function loadUsage(timeZone) {
     const status = rawStatus == null ? 200 : (Number.isFinite(numStatus) ? numStatus : 200);
 
     if (status === 0) throw new Error("Phone could not reach the Worker. Check internet and URL.");
-    if (status === 401) throw new Error("Unauthorized. Check your T3 Token or Worker Key.");
-    if (status === 503) throw new Error("T3 not configured. Set T3 Base URL & Token in settings.");
+    if (status === 401) throw new Error("Unauthorized. Check your T3 Code token or Worker key.");
+    if (status === 503) throw new Error("T3 Code not configured. Set the T3 Code base URL and token in settings.");
     if (status === 429) throw new Error("Too many requests to Worker. Wait a moment and retry.");
     if (status === 502) {
       let customError;
@@ -141,7 +141,7 @@ async function loadUsage(timeZone) {
         // Body is not JSON (e.g. Cloudflare HTML error page); fall through to default
       }
       if (customError) throw new Error(customError);
-      throw new Error("T3 connection failed. Check T3 Code and its tunnel.");
+      throw new Error("T3 Code connection failed. Check your T3 Code server and its tunnel.");
     }
     if (status >= 300) {
       let customError;
@@ -171,10 +171,10 @@ async function loadUsage(timeZone) {
       const keyStr = keys.length > 0 ? keys.slice(0, 3).join(",").slice(0, 14) : "none";
       const vStr = String(body?.version ?? "-").slice(0, 4);
       const diag = `s=${status} v=${vStr} r=${body?.ranges ? 1 : 0} t=${rawType} l=${rawLen} k=${keyStr}`;
-      console.log(`[T3 Usage] validation failed: ${diag}`);
+      console.log(`[T3 Code Usage] validation failed: ${diag}`);
       throw new Error(`Summary err (${diag}).`);
     }
-    console.log(`[T3 Usage] parsed response: version=${body.version}, ranges=${Object.keys(body.ranges).join(",")}`);
+    console.log(`[T3 Code Usage] parsed response: version=${body.version}, ranges=${Object.keys(body.ranges).join(",")}`);
     body.stale = false;
     body.limits = cleanLimitsForWatch(body.limits);
     const serialized = JSON.stringify(body);

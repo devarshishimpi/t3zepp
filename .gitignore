@@ -161,6 +161,10 @@ build/
 *.zpk
 .zeus/
 
+# Keep the store package and supplied screenshots in version control.
+!/app/dist/
+/app/dist/*
+
 # OS / Editor
 .DS_Store
 Thumbs.db

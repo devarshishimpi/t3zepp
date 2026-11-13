@@ -1,0 +1,94 @@
+---
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteNav from "../components/SiteNav.astro";
+import SiteLayout from "../layouts/SiteLayout.astro";
+import "../styles/legal.css";
+import "../styles/rounded-ui.css";
+---
+
+<SiteLayout
+  title="Privacy Policy | T3Zepp"
+  description="See what T3Zepp stores and processes when you connect a T3 Code server and pair an Amazfit watch."
+>
+  <SiteNav page="legal" />
+  <main class="legal-page">
+    <article class="legal-inner">
+      <div class="legal-kicker">T3 Zepp / Privacy</div>
+      <h1>Privacy Policy</h1>
+      <p class="legal-updated">Effective date: November 12, 2026</p>
+
+      <div class="legal-content">
+        <section>
+          <h2>About this policy</h2>
+          <p>
+            T3Zepp is an independent, open-source companion that brings selected T3 Code usage information to a compatible Amazfit watch. This policy describes information handled by the T3Zepp website, pairing dashboard, phone app, watch app, and public gateway. T3Zepp is not affiliated with T3 Tools, Zepp Health, or Amazfit.
+          </p>
+        </section>
+
+        <section>
+          <h2>Information you provide</h2>
+          <p>
+            When you pair a watch through the T3Zepp dashboard, you provide your T3 Code server URL and a scoped T3 Code session token. The gateway also creates a device key, a short-lived pairing code, and an optional label for the device. To limit automated pairing attempts, it temporarily stores a one-way hash of your network address with a short-lived request counter. Do not submit credentials for a server you do not control or have permission to access.
+          </p>
+          <p>
+            The T3Zepp phone app stores the device key in Zepp app settings so it can request updates. If you configure a server URL and token directly instead of using pairing, those values are kept in the phone app settings and sent to the gateway with usage requests.
+          </p>
+        </section>
+
+        <section>
+          <h2>Information the gateway stores</h2>
+          <p>
+            For a paired device, the gateway stores the device key, T3 Code server URL, scoped session token, optional label, creation time, last-used time, and request count in a Cloudflare D1 database. Pairing codes expire after ten minutes and cannot be claimed again after use. Hashed rate-limit counters expire after about one hour. Expired and claimed pairing records may remain in the database.
+          </p>
+          <p>
+            Device records remain available until you revoke the device key from the pairing dashboard. Revocation deletes the active device record. To remove the T3 Code credential as well, revoke that session in T3 Code. Database backups and service logs may be retained under Cloudflare's policies and operational schedules.
+          </p>
+        </section>
+
+        <section>
+          <h2>Usage requests and logs</h2>
+          <p>
+            When the watch syncs, the gateway uses the server URL and scoped token to request usage information from your T3 Code server. It summarizes the response for the watch and returns it to the phone app. The gateway does not intentionally store the usage response. Its application logs record request status, timing, response size, and diagnostic categories, not your session token or usage details.
+          </p>
+          <p>
+            Cloudflare operates the website, gateway, and D1 database. Cloudflare may process network and request information, such as IP address and technical metadata, to deliver, protect, and maintain those services. Review the <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare Privacy Policy</a> for its practices.
+          </p>
+        </section>
+
+        <section>
+          <h2>Website technologies</h2>
+          <p>
+            The T3Zepp website does not currently use advertising trackers or analytics cookies. It loads fonts from Google Fonts, which may receive your IP address and browser request information when your browser fetches those fonts. The Zepp app and Amazfit watch may separately process information under their own policies and settings.
+          </p>
+        </section>
+
+        <section>
+          <h2>How to manage or remove information</h2>
+          <ul>
+            <li>Revoke a device key in the <a href="/pair">pairing dashboard</a> to delete its active gateway device record.</li>
+            <li>Revoke the scoped T3 Code session in T3 Code to invalidate the credential stored by the gateway.</li>
+            <li>Remove the device key or any direct connection settings from Zepp app settings to stop the phone app from using them.</li>
+          </ul>
+          <p>
+            The project does not currently provide a separate account or a support email. For privacy questions or requests about information in the gateway, contact the maintainers through <a href="https://github.com/devarshishimpi/t3zepp/issues" target="_blank" rel="noopener">GitHub Issues</a>. Do not include passwords, session tokens, device keys, or other private data in a public issue.
+          </p>
+        </section>
+
+        <section>
+          <h2>Children</h2>
+          <p>
+            T3Zepp is a general-purpose developer companion and is not directed to children. Do not use the service if you are not permitted to provide the information described in this policy under the laws that apply to you.
+          </p>
+        </section>
+
+        <section>
+          <h2>Changes</h2>
+          <p>
+            This policy may change as T3Zepp changes. The effective date above shows when the current version was published. Material updates will be posted on this page.
+          </p>
+        </section>
+      </div>
+    </article>
+  </main>
+  <SiteFooter page="legal" />
+</SiteLayout>

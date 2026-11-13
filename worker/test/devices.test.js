@@ -23,6 +23,14 @@ function createMockDb() {
           return this;
         },
         async first() {
+          if (sql.includes("UPDATE pairing_sessions SET claimed = 1")) {
+            const session = sessions.get(bound[0]);
+            if (session && session.claimed === 0 && session.expires_at > bound[1]) {
+              session.claimed = 1;
+              return { device_key: session.device_key };
+            }
+            return null;
+          }
           if (sql.includes("FROM devices WHERE device_key = ?")) {
             return devices.get(bound[0]) || null;
           }
@@ -32,11 +40,6 @@ function createMockDb() {
           return null;
         },
         async run() {
-          if (sql.includes("UPDATE pairing_sessions SET claimed = 1")) {
-            const s = sessions.get(bound[0]);
-            if (s) s.claimed = 1;
-            return { success: true };
-          }
           if (sql.includes("UPDATE devices SET t3_base_url = ?")) {
             const d = devices.get(bound[2]);
             if (d) {
@@ -71,8 +74,8 @@ function createMockDb() {
         pairing_code: sessStmt._bound[0],
         device_key: sessStmt._bound[1],
         expires_at: sessStmt._bound[2],
-        claimed: sessStmt._bound[3],
-        created_at: sessStmt._bound[4],
+        claimed: 0,
+        created_at: sessStmt._bound[3],
       });
       return [];
     },
@@ -115,8 +118,13 @@ test("creates device and claims pairing code", async () => {
   assert.match(res.pairingCode, /^\d{6}$/);
   assert.equal(res.t3BaseUrl, "https://tunnel.example.com");
 
-  // Claim code
-  const claimed = await claimPairingCode(db, res.pairingCode);
+  // Concurrent claims have exactly one winner.
+  const claims = await Promise.allSettled([
+    claimPairingCode(db, res.pairingCode),
+    claimPairingCode(db, res.pairingCode),
+  ]);
+  assert.equal(claims.filter((claim) => claim.status === "fulfilled").length, 1);
+  const claimed = claims.find((claim) => claim.status === "fulfilled").value;
   assert.equal(claimed.deviceKey, res.deviceKey);
 
   // Claiming again fails
@@ -133,6 +141,10 @@ test("creates device and claims pairing code", async () => {
     t3BaseUrl: "https://new-tunnel.example.com",
   });
   assert.equal(updated.t3BaseUrl, "https://new-tunnel.example.com");
+  await assert.rejects(
+    () => updateDevice(db, { deviceKey: res.deviceKey, t3BaseUrl: "http://new-tunnel.example.com" }),
+    /HTTPS origin/,
+  );
 
   const devAfter = await getDevice(db, res.deviceKey);
   assert.equal(devAfter.t3_base_url, "https://new-tunnel.example.com");

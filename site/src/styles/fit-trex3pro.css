@@ -1,0 +1,21 @@
+/*
+ * Fit for the photographed T-Rex 3 Pro dial (ring-trex3pro.png):
+ * the clear glass opening is about 40% of the source image and sits just
+ * above its vertical midpoint. A 43% x 45% box clipped to a 47% circle
+ * yields a ~40.4% opening centered at x=50%, y=49.5%, with bezel margin.
+ * Scaling the SVG 1.12x counteracts its built-in .79 group scale so the
+ * dashboard reads more clearly while keeping its content inside that circle.
+ */
+.real-watch.real-watch-b > .display-trex-pro-dial {
+  left: 28.5%;
+  top: 27%;
+  width: 43%;
+  height: 45%;
+  border-radius: 50%;
+  clip-path: circle(47% at 50% 50%);
+}
+
+.real-watch.real-watch-b > .display-trex-pro-dial > .watch-ui {
+  transform: scale(1.12);
+  transform-origin: 50% 50%;
+}

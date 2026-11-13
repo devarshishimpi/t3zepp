@@ -9,10 +9,30 @@ import {
   touchDevice,
   revokeDevice,
 } from "./devices.js";
-import { PAIRING_PAGE_HTML } from "./pairing-page.js";
-
 const MAX_BODY_BYTES = 4096;
 const MAX_RESPONSE_BYTES = 64_000;
+const PAIRING_INIT_LIMIT = 5;
+const PAIRING_CLAIM_LIMIT = 10;
+
+async function rateLimitPairing(request, env, path, limit) {
+  if (!env.DB) return true;
+  const now = Date.now();
+  const windowStart = Math.floor(now / 60_000) * 60_000;
+  const clientIp = request.headers.get("cf-connecting-ip") || "unknown";
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(`${clientIp}:${path}:${windowStart}`),
+  );
+  const bucketKey = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  const result = await env.DB.prepare(
+    "INSERT INTO pairing_rate_limits (bucket_key, attempts, window_ends_at) VALUES (?, 1, ?) " +
+      "ON CONFLICT(bucket_key) DO UPDATE SET attempts = attempts + 1 RETURNING attempts",
+  ).bind(bucketKey, windowStart + 60_000).first();
+  if (now % 60_000 < 5_000) {
+    await env.DB.prepare("DELETE FROM pairing_rate_limits WHERE window_ends_at < ?").bind(now - 60 * 60_000).run();
+  }
+  return Number(result?.attempts) <= limit;
+}
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -87,370 +107,10 @@ async function requestBody(request) {
   return value;
 }
 
-const LANDING_PAGE_HTML = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>T3 Zepp: T3 Code Companion for Amazfit Watches</title>
-  <style>
-    :root {
-      --bg: #09090b;
-      --card: #121215;
-      --card-border: #27272a;
-      --text: #f4f4f5;
-      --text-muted: #a1a1aa;
-      --text-subtle: #71717a;
-      --accent: #f4f4f5;
-      --accent-foreground: #09090b;
-      --code-bg: #18181b;
-      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      --font-mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-sans);
-      line-height: 1.5;
-      padding: 0;
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-    }
-    .topbar {
-      border-bottom: 1px solid var(--card-border);
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(9, 9, 11, 0.8);
-      backdrop-filter: blur(12px);
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: var(--text);
-    }
-    .logo-badge {
-      background: #27272a;
-      color: #ffffff;
-      font-weight: 700;
-      font-size: 11px;
-      padding: 3px 6px;
-      border-radius: 4px;
-      letter-spacing: 0.5px;
-    }
-    .brand-title {
-      font-weight: 600;
-      font-size: 14px;
-      color: #ffffff;
-    }
-    .nav-links {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-    .nav-links a {
-      color: var(--text-muted);
-      font-size: 13px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.15s ease;
-    }
-    .nav-links a:hover { color: #ffffff; }
-    .container {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 40px 16px 80px 16px;
-    }
-    header {
-      margin-bottom: 32px;
-    }
-    .badge-subtle {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text-subtle);
-      border: 1px solid var(--card-border);
-      border-radius: 4px;
-      padding: 2px 8px;
-      margin-bottom: 12px;
-    }
-    h1 {
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: -0.4px;
-      color: #ffffff;
-      margin-bottom: 8px;
-    }
-    p.lead {
-      font-size: 15px;
-      color: var(--text-muted);
-      max-width: 600px;
-      line-height: 1.6;
-    }
-    .header-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .btn-primary {
-      display: inline-block;
-      background: var(--accent);
-      color: var(--accent-foreground);
-      padding: 8px 16px;
-      font-weight: 600;
-      font-size: 13px;
-      border: none;
-      border-radius: 6px;
-      text-decoration: none;
-      transition: background 0.15s ease;
-      font-family: inherit;
-    }
-    .btn-primary:hover { background: #e4e4e7; }
-    .btn-secondary {
-      display: inline-block;
-      background: #18181b;
-      border: 1px solid var(--card-border);
-      color: var(--text);
-      padding: 8px 16px;
-      font-weight: 500;
-      font-size: 13px;
-      border-radius: 6px;
-      text-decoration: none;
-      transition: background 0.15s ease;
-      font-family: inherit;
-    }
-    .btn-secondary:hover { background: #27272a; }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    .card h2 {
-      font-size: 15px;
-      font-weight: 600;
-      color: #ffffff;
-      margin-bottom: 8px;
-    }
-    .card p {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      line-height: 1.6;
-    }
-    .card p:last-child { margin-bottom: 0; }
-    .endpoint-box {
-      background: var(--code-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
-      padding: 10px 14px;
-      font-family: var(--font-mono);
-      font-size: 13px;
-      color: #f4f4f5;
-      display: block;
-      margin: 8px 0;
-    }
-    .step-list {
-      list-style: none;
-      counter-reset: step-counter;
-      margin-top: 16px;
-    }
-    .step-item {
-      counter-increment: step-counter;
-      position: relative;
-      padding-left: 36px;
-      margin-bottom: 24px;
-    }
-    .step-item::before {
-      content: counter(step-counter);
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 22px;
-      height: 22px;
-      background: #27272a;
-      color: #ffffff;
-      font-weight: 600;
-      font-size: 11px;
-      border-radius: 4px;
-      text-align: center;
-      line-height: 22px;
-    }
-    .step-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #ffffff;
-      margin-bottom: 4px;
-    }
-    .step-desc {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.5;
-      margin-bottom: 8px;
-    }
-    pre {
-      background: var(--code-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
-      padding: 10px 14px;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      color: #e2e8f0;
-      overflow-x: auto;
-      margin: 8px 0 12px 0;
-      line-height: 1.5;
-    }
-    code {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      background: #27272a;
-      padding: 2px 6px;
-      border-radius: 4px;
-      color: #f4f4f5;
-    }
-    pre code {
-      background: none;
-      padding: 0;
-      color: inherit;
-    }
-    footer {
-      text-align: center;
-      font-size: 12px;
-      color: var(--text-subtle);
-      margin-top: 48px;
-      padding-top: 24px;
-      border-top: 1px solid var(--card-border);
-    }
-    footer a { color: var(--text-muted); text-decoration: none; }
-    footer a:hover { color: #ffffff; }
-  </style>
-</head>
-<body>
-  <nav class="topbar">
-    <a href="/" class="brand">
-      <span class="logo-badge">T3</span>
-      <span class="brand-title">T3 Zepp</span>
-    </a>
-    <div class="nav-links">
-      <a href="/pair">Pairing Tool</a>
-      <a href="https://github.com/devarshishimpi/t3zepp" target="_blank" rel="noopener">GitHub</a>
-    </div>
-  </nav>
-
-  <div class="container">
-    <header>
-      <div class="badge-subtle">Amazfit watches &bull; Zepp OS &bull; AGPL-3.0</div>
-      <h1>T3 Zepp Companion</h1>
-      <p class="lead">T3 Zepp is a community-built companion project for the T3 ecosystem, designed to bring useful T3 information to Amazfit watches while leaving room for broader watch-friendly tools and experiences in the future.</p>
-      <div class="header-actions">
-        <a class="btn-primary" href="/pair">Open Pairing Dashboard</a>
-        <a class="btn-secondary" href="https://github.com/devarshishimpi/t3zepp" target="_blank" rel="noopener">GitHub Repository</a>
-      </div>
-    </header>
-
-    <div class="card">
-      <h2>Supported watches</h2>
-      <ul>
-        <li>Amazfit T-Rex 3 (Zepp OS 4.0)</li>
-      </ul>
-      <p style="font-size: 12px; color: var(--text-subtle);">Compatibility is confirmed for the models listed here. More Amazfit watches may be added as they are verified.</p>
-    </div>
-
-    <div class="card">
-      <h2>Public Gateway Endpoint</h2>
-      <p>This service acts as an open, multi-tenant proxy gateway for T3 Zepp. You can pair your watch directly without creating a Cloudflare account or hosting your own serverless infrastructure.</p>
-      <code class="endpoint-box">https://t3zepp.devarshi.dev</code>
-      <p style="font-size: 12px; color: var(--text-subtle);">Device mappings are saved under a random, unguessable Device Key in Cloudflare D1. Updating endpoints when your tunnel restarts requires no watch reconfiguration.</p>
-    </div>
-
-    <div class="card">
-      <h2>Quickstart Setup Guide</h2>
-      <p>Follow these steps to connect a supported Amazfit watch:</p>
-
-      <ol class="step-list">
-        <li class="step-item">
-          <div class="step-title">Install T3 Zepp onto your watch</div>
-          <div class="step-desc">
-            Enable Developer Mode in the Zepp app on your phone (Profile &gt; Settings &gt; About, tap Zepp OS version 7 times). Then build and preview from your computer:
-          </div>
-          <pre><code>git clone https://github.com/devarshishimpi/t3zepp.git
-cd t3zepp/app
-npm install
-npm run preview</code></pre>
-          <div class="step-desc">
-            Scan the terminal QR code in the Zepp phone app under Profile &gt; Developer Mode.
-          </div>
-        </li>
-
-        <li class="step-item">
-          <div class="step-title">Start an HTTPS tunnel to local T3 Code (Port 3773)</div>
-          <div class="step-desc">
-            T3 Code listens on port 3773. Run a quick tunnel:
-          </div>
-          <pre><code># Cloudflare Quick Tunnel (Recommended)
-cloudflared tunnel --url http://127.0.0.1:3773
-
-# Or localtunnel
-npx localtunnel --port 3773</code></pre>
-        </li>
-
-        <li class="step-item">
-          <div class="step-title">Issue a read-only session token</div>
-          <div class="step-desc">
-            In your terminal inside your T3 Code repository:
-          </div>
-          <pre><code>t3 auth session issue --scope diagnostics:read --scope orchestration:read --ttl 365d --token-only</code></pre>
-        </li>
-
-        <li class="step-item">
-          <div class="step-title">Generate pairing code &amp; link in Zepp app</div>
-          <div class="step-desc">
-            Visit <a href="/pair" style="color: #f4f4f5; text-decoration: underline;">/pair</a>, paste your tunnel address and session token, and tap <b>Generate Pairing Code</b>. Enter the 6-digit code in the Zepp app under your watch's page &gt; T3 Zepp &gt; Settings.
-          </div>
-        </li>
-
-        <li class="step-item">
-          <div class="step-title">Sync live metrics on watch</div>
-          <div class="step-desc">
-            Open T3 Zepp on your supported Amazfit watch and tap <b>Refresh</b>.
-          </div>
-        </li>
-      </ol>
-    </div>
-
-    <div class="card">
-      <h2>Tunnel Restarts</h2>
-      <p>If your quick tunnel restarts and Cloudflare assigns a new HTTPS URL, visit <a href="/pair" style="color: #f4f4f5; text-decoration: underline;">/pair</a>, select <b>Update Tunnel URL</b>, and paste your Device Key and new address. Your watch will immediately route through the new tunnel without touching watch or phone settings.</p>
-    </div>
-
-    <footer>
-      <p>Unofficial companion &bull; Not affiliated with T3 Tools &bull; AGPL-3.0 License &bull; <a href="https://github.com/devarshishimpi/t3zepp">GitHub</a></p>
-    </footer>
-  </div>
-</body>
-</html>`;
-
 export function createWorker({ readUsage = readT3Usage, clock = () => new Date() } = {}) {
   return {
     async fetch(request, env) {
       const url = new URL(request.url);
-      if ((request.method === "GET" || request.method === "HEAD") && (url.pathname === "/" || url.pathname === "")) {
-        return new Response(request.method === "HEAD" ? null : LANDING_PAGE_HTML, {
-          status: 200,
-          headers: {
-            "content-type": "text/html; charset=utf-8",
-            "cache-control": "public, max-age=3600",
-          },
-        });
-      }
       if ((request.method === "GET" || request.method === "HEAD") && url.pathname === "/health") {
         return request.method === "HEAD"
           ? new Response(null, {
@@ -462,18 +122,12 @@ export function createWorker({ readUsage = readT3Usage, clock = () => new Date()
             })
           : json({ ok: true });
       }
-      if ((request.method === "GET" || request.method === "HEAD") && (url.pathname === "/pair" || url.pathname === "/pair/")) {
-        return new Response(request.method === "HEAD" ? null : PAIRING_PAGE_HTML, {
-          status: 200,
-          headers: {
-            "content-type": "text/html; charset=utf-8",
-            "cache-control": "public, max-age=300",
-          },
-        });
-      }
 
       if (url.pathname === "/api/pair/init") {
         if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
+        if (!(await rateLimitPairing(request, env, url.pathname, PAIRING_INIT_LIMIT))) {
+          return json({ error: "Too many pairing attempts. Try again in a minute." }, 429);
+        }
         try {
           const input = await requestBody(request);
           const result = await createDevice(env.DB, {
@@ -489,6 +143,9 @@ export function createWorker({ readUsage = readT3Usage, clock = () => new Date()
 
       if (url.pathname === "/api/pair/claim") {
         if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
+        if (!(await rateLimitPairing(request, env, url.pathname, PAIRING_CLAIM_LIMIT))) {
+          return json({ error: "Too many pairing attempts. Try again in a minute." }, 429);
+        }
         try {
           const input = await requestBody(request);
           const result = await claimPairingCode(env.DB, input.pairingCode);
@@ -530,24 +187,20 @@ export function createWorker({ readUsage = readT3Usage, clock = () => new Date()
         }
       }
 
-      if (url.pathname !== "/v1/usage") return json({ error: "Not found" }, 404);
+      if (url.pathname !== "/v1/usage") {
+        if (
+          (request.method === "GET" || request.method === "HEAD") &&
+          !url.pathname.startsWith("/api/") &&
+          env.ASSETS
+        ) {
+          return env.ASSETS.fetch(request);
+        }
+        return json({ error: "Not found" }, 404);
+      }
       if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
       const authorization = request.headers.get("authorization") ?? "";
       const authKey = authorization.startsWith("Bearer ") ? authorization.slice(7).trim() : "";
-
-      const targetWorkerHeader = request.headers.get("x-target-worker");
-      if (targetWorkerHeader && /^https?:\/\//i.test(targetWorkerHeader)) {
-        const dest = targetWorkerHeader.endsWith("/v1/usage") ? targetWorkerHeader : `${targetWorkerHeader.replace(/\/+$/, "")}/v1/usage`;
-        const fwdHeaders = new Headers(request.headers);
-        fwdHeaders.delete("host");
-        fwdHeaders.delete("x-target-worker");
-        return fetch(dest, {
-          method: "POST",
-          headers: fwdHeaders,
-          body: await request.text(),
-        });
-      }
 
       const startedAt = Date.now();
       let upstreamMs = 0;
@@ -574,7 +227,7 @@ export function createWorker({ readUsage = readT3Usage, clock = () => new Date()
         }
 
         if (!customT3Base || !customT3Token) {
-          return json({ error: "Missing T3 credentials. Provide a valid Device Key or T3 Base URL and Token in companion settings." }, 400);
+          return json({ error: "Missing T3 Code credentials. Provide a valid Device Key or T3 Code server URL and session token in companion settings." }, 400);
         }
 
         const usageInputs = makeUsageInputs(clock(), input.timeZone ?? "UTC");
@@ -636,7 +289,7 @@ export function createWorker({ readUsage = readT3Usage, clock = () => new Date()
           totalMs: Date.now() - startedAt,
           ...upstreamDiagnostic(error),
         }));
-        return json({ error: "Could not read T3 Usage. Check the T3 connection and credential." }, 502);
+        return json({ error: "Could not read T3 Code Usage. Check the T3 Code connection and credential." }, 502);
       }
     },
   };

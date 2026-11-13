@@ -1,0 +1,311 @@
+---
+import HeroWatchGroup from "../components/HeroWatchGroup.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteNav from "../components/SiteNav.astro";
+import UsageTrend from "../components/UsageTrend.astro";
+import SiteLayout from "../layouts/SiteLayout.astro";
+import "../styles/landing.css";
+import "../styles/rounded-ui.css";
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://t3zepp.devarshi.dev/#website",
+      url: "https://t3zepp.devarshi.dev/",
+      name: "T3Zepp",
+      description:
+        "Bring the useful bits of T3 Code to your Amazfit watch: quick updates on usage, limits, notifications, and more.",
+      inLanguage: "en",
+      publisher: { "@id": "https://t3zepp.devarshi.dev/#creator" },
+    },
+    {
+      "@type": "Person",
+      "@id": "https://t3zepp.devarshi.dev/#creator",
+      name: "Devarshi Shimpi",
+      url: "https://devarshi.dev/",
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://t3zepp.devarshi.dev/#application",
+      name: "T3Zepp",
+      url: "https://t3zepp.devarshi.dev/",
+      applicationCategory: "UtilitiesApplication",
+      operatingSystem: "Zepp OS 4.0",
+      description:
+        "Bring the useful bits of T3 Code to your Amazfit watch: quick updates on usage, limits, notifications, and more.",
+      license: "https://www.gnu.org/licenses/agpl-3.0.html",
+      isAccessibleForFree: true,
+      author: { "@id": "https://t3zepp.devarshi.dev/#creator" },
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+        url: "https://t3zepp.devarshi.dev/install/",
+      },
+    },
+  ],
+};
+---
+
+<SiteLayout
+  title="T3Zepp | T3 Code companion for Amazfit."
+  description="Bring the useful bits of T3 Code to your Amazfit watch: quick updates on usage, limits, notifications, and more."
+>
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  <SiteNav page="home" />
+  <main class="home-main">
+    <section class="hero" aria-labelledby="hero-title">
+      <HeroWatchGroup />
+      <div class="hero-content">
+        <h1 id="hero-title">
+          T3 Code companion
+          <br />
+          <span>for Amazfit.</span>
+        </h1>
+        <p class="hero-copy">
+          Bring the useful bits of T3 Code to your Amazfit watch: quick updates
+          on usage, limits, notifications, and more.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="/install">
+            Install T3Zepp
+          </a>
+          <a
+            class="button"
+            href="https://github.com/devarshishimpi/t3zepp"
+            target="_blank"
+            rel="noopener"
+          >
+            View on GitHub
+          </a>
+        </div>
+      </div>
+      <SiteFooter page="home" />
+    </section>
+    <section class="section" id="how-it-works">
+      <div class="section-inner">
+        <div class="story">
+          <div>
+            <div class="section-label">
+              A smaller surface for the useful numbers
+            </div>
+            <h2>
+              See the signal.
+              <br />
+              <em>Keep moving.</em>
+            </h2>
+            <p>
+              Bring the useful bits of T3 Code to your Amazfit watch: quick
+              updates on usage, limits, notifications, and more.
+            </p>
+          </div>
+          <div
+            class="stats-card"
+            role="region"
+            aria-label="Illustrative T3 Zepp watch screen with provider usage trend"
+          >
+            <div class="stats-top">
+              <span>Usage overview</span>
+              <small>SAMPLE · LAST 7 DAYS</small>
+            </div>
+            <div class="stats-number">
+              8.21M
+            </div>
+            <div class="stats-caption">Across your connected providers</div>
+            <div class="chart-heading">
+              <span>TOKEN TREND</span>
+              <small>PEAK 1.42M</small>
+            </div>
+            <div class="chart-legend">
+              <span>
+                <i style="background:#ededed"></i>Claude
+              </span>
+              <span>
+                <i style="background:#c5c5c8"></i>Codex
+              </span>
+              <span>
+                <i style="background:#929297"></i>OpenCode
+              </span>
+              <span>
+                <i style="background:#66666b"></i>Other
+              </span>
+            </div>
+            <UsageTrend
+              variant="site"
+              className="watch-line-chart"
+              label="Sample provider usage trend"
+            />
+            <div class="chart-labels">
+              <span>7D AGO</span>
+              <span>NOW</span>
+            </div>
+          </div>
+        </div>
+        <div class="feature-notes">
+          <div class="feature-intro">
+            <div class="section-label">How the connection works</div>
+            <p>
+              Your T3 Code session stays at the gateway. The watch pairs with
+              its own device key.
+            </p>
+          </div>
+          <article>
+            <div class="feature-index">01 / T3 CODE</div>
+            <h3>Start with the useful signal</h3>
+            <p>
+              The current release puts T3 Code usage at a glance on your
+              watch. It is the first capability in a growing companion.
+            </p>
+          </article>
+          <article>
+            <div class="feature-index">02 / GATEWAY</div>
+            <h3>Keep the session close</h3>
+            <p>
+              The <a href="https://t3zepp.devarshi.dev">public gateway</a>{" "}
+              connects to your T3 Code server over HTTPS. Your T3 Code session
+              token never goes to the watch.
+            </p>
+          </article>
+          <article>
+            <div class="feature-index">03 / AMAZFIT</div>
+            <h3>Carry a device key</h3>
+            <p>
+              The watch uses a revocable device key to sync. Compatibility is
+              confirmed for T-Rex 3; other renders are illustrative.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section class="faq-section" aria-labelledby="faq-title">
+      <div class="section-inner faq-layout">
+        <div class="faq-intro">
+          <div class="section-label">Before you install</div>
+          <h2 id="faq-title">Good to know.</h2>
+          <p>
+            A few practical details about compatibility, data, and the
+            connection.
+          </p>
+        </div>
+        <div class="faq-list">
+          <details name="landing-faq">
+            <summary>Which Amazfit watches are supported?<span class="faq-toggle" aria-hidden="true">+</span></summary>
+            <p>
+              Compatibility is confirmed for Amazfit T-Rex 3 running Zepp OS
+              4.0. Other watch renders on this site are illustrative, not
+              compatibility claims.
+            </p>
+          </details>
+          <details name="landing-faq">
+            <summary>Is T3 Zepp free?<span class="faq-toggle" aria-hidden="true">+</span></summary>
+            <p>
+              Yes. T3 Zepp is free and open source under the AGPL-3.0 license.
+              A compatible watch and T3 Code server are required.
+            </p>
+          </details>
+          <details name="landing-faq">
+            <summary>What does the watch display?<span class="faq-toggle" aria-hidden="true">+</span></summary>
+            <p>
+              T3 Code usage totals, tokens, provider limits, and
+              trends—summarized for a quick check on your wrist.
+            </p>
+          </details>
+          <details name="landing-faq">
+            <summary>Do I need to build the app or run a proxy?<span class="faq-toggle" aria-hidden="true">+</span></summary>
+            <p>
+              No. Install the public Zepp Store app and use the hosted proxy at
+              t3zepp.devarshi.dev. You only need to connect your T3 Code server
+              and pair your watch. Building the app or running your own proxy
+              is optional.
+            </p>
+          </details>
+          <details name="landing-faq">
+            <summary>Does my T3 Code session token go to the watch?<span class="faq-toggle" aria-hidden="true">+</span></summary>
+            <p>
+              No. The gateway stores the scoped read-only session token in its
+              Cloudflare D1 device record so it can read usage. The token is
+              not sent to the watch; use a gateway you trust and revoke the
+              token when needed. The watch receives a separate revocable key.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
+    <section class="cta-section">
+      <div class="cta-box">
+        <div class="cta-copy">
+          <div class="section-label">One quick setup</div>
+          <h2>Start with your first sync.</h2>
+          <p>
+            Install T3 Zepp, connect your T3 Code server, then check in
+            whenever you like. Setup walks you through each step.
+          </p>
+          <a class="button primary" href="/install">
+            See installation steps <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+        <aside class="cta-steps" aria-label="Setup overview">
+          <div class="section-label">From setup to sync</div>
+          <ol>
+            <li>
+              <span>01</span>
+              <span>Install on your watch</span>
+            </li>
+            <li>
+              <span>02</span>
+              <span>Connect your T3 Code server</span>
+            </li>
+            <li>
+              <span>03</span>
+              <span>Check in from your wrist</span>
+            </li>
+          </ol>
+        </aside>
+      </div>
+    </section>
+    <section class="manifesto" aria-label="T3 Zepp project vision">
+      <div class="manifesto-inner">
+        <p>Built around the tools you already use.<br /><em>Made for wherever T3 Code goes next.</em></p>
+        <div class="manifesto-foot"><span>DESIGNED TO GROW WITH T3 CODE</span></div>
+      </div>
+    </section>
+  </main>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "name": "T3Zepp",
+          "applicationCategory": "UtilitiesApplication",
+          "operatingSystem": "Zepp OS 4.0",
+          "description": "Bring the useful bits of T3 Code to your Amazfit watch: quick updates on usage, limits, notifications, and more.",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+          "license": "https://www.gnu.org/licenses/agpl-3.0.html"
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Which Amazfit watches are supported?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Compatibility is confirmed for Amazfit T-Rex 3 running Zepp OS 4.0. Other watch renders are illustrative, not compatibility claims." }
+            },
+            {
+              "@type": "Question",
+              "name": "What does T3 Zepp display?",
+              "acceptedAnswer": { "@type": "Answer", "text": "T3 Zepp shows T3 Code usage totals, tokens, provider limits, and trends in a compact watch view." }
+            },
+            {
+              "@type": "Question",
+              "name": "Is T3 Zepp free?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. T3 Zepp is free and open source under the AGPL-3.0 license. A compatible watch and T3 Code server are required." }
+            }
+          ]
+        }
+      ]
+    }
+  </script>
+</SiteLayout>

@@ -1,0 +1,62 @@
+---
+interface Props {
+  variant: "watch" | "site";
+  className?: string;
+  label?: string;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+}
+
+const { variant, className, label, x, y, width, height } = Astro.props;
+const series = [
+  {
+    points:
+      "0,162 36,178 73,150 109,166 145,116 181,128 218,80 254,102 290,63 326,89 363,45 399,72",
+  },
+  {
+    points:
+      "0,182 36,168 73,177 109,142 145,155 181,120 218,141 254,96 290,115 326,75 363,91 399,55",
+  },
+  {
+    points:
+      "0,184 36,180 73,168 109,175 145,160 181,170 218,143 254,156 290,126 326,139 363,114 399,128",
+  },
+  {
+    points:
+      "0,180 36,184 73,176 109,181 145,169 181,179 218,164 254,171 290,150 326,160 363,142 399,153",
+  },
+];
+const strokes =
+  variant === "watch"
+    ? ["#d97757", "#e6e6e6", "#5b9bbd", "#77777f"]
+    : ["#ededed", "#c5c5c8", "#929297", "#66666b"];
+---
+
+<svg
+  class={className}
+  x={x}
+  y={y}
+  width={width}
+  height={height}
+  viewBox="0 0 400 210"
+  role={label ? "img" : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : "true"}
+>
+  <path
+    d="M0 34H399M0 84H399M0 134H399M0 184H399"
+    fill="none"
+    stroke={variant === "watch" ? "#26252c" : "#26262a"}
+    stroke-width="1"
+  />
+  {series.map((line, index) => (
+    <polyline
+      points={line.points}
+      fill="none"
+      stroke={strokes[index]}
+      stroke-width="3"
+    />
+  ))}
+</svg>

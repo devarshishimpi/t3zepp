@@ -21,3 +21,11 @@ CREATE TABLE IF NOT EXISTS pairing_sessions (
 
 CREATE INDEX IF NOT EXISTS idx_devices_last_used ON devices(last_used_at);
 CREATE INDEX IF NOT EXISTS idx_pairing_expires ON pairing_sessions(expires_at);
+
+CREATE TABLE IF NOT EXISTS pairing_rate_limits (
+  bucket_key TEXT PRIMARY KEY,
+  attempts INTEGER NOT NULL,
+  window_ends_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_pairing_rate_limits_expiry ON pairing_rate_limits(window_ends_at);

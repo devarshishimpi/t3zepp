@@ -1,0 +1,102 @@
+---
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteNav from "../components/SiteNav.astro";
+import SiteLayout from "../layouts/SiteLayout.astro";
+import "../styles/legal.css";
+import "../styles/rounded-ui.css";
+---
+
+<SiteLayout
+  title="Terms of Use | T3Zepp"
+  description="Read the terms for using T3Zepp, its public gateway, and its Amazfit watch companion app."
+>
+  <SiteNav page="legal" />
+  <main class="legal-page">
+    <article class="legal-inner">
+      <div class="legal-kicker">T3 Zepp / Terms</div>
+      <h1>Terms of Use</h1>
+      <p class="legal-updated">Effective date: November 12, 2026</p>
+
+      <div class="legal-content">
+        <section>
+          <h2>Using T3Zepp</h2>
+          <p>
+            T3Zepp is an independent companion app and service for bringing selected T3 Code information to compatible Amazfit watches. By using the website, pairing dashboard, gateway, phone app, or watch app, you agree to these terms. If you do not agree, do not use T3Zepp.
+          </p>
+          <p>
+            T3Zepp is not affiliated with or endorsed by T3 Tools, Zepp Health, or Amazfit. T3 Code, Zepp, and Amazfit are separate products and services governed by their own terms.
+          </p>
+        </section>
+
+        <section>
+          <h2>Eligibility and your responsibilities</h2>
+          <p>
+            You must be legally allowed to use T3Zepp where you live. You are responsible for the T3 Code server and Amazfit watch you connect, for having permission to access them, and for keeping your session token, pairing code, and device key private.
+          </p>
+          <p>
+            Use a read-only T3 Code session with only the permissions needed by T3Zepp. Do not use T3Zepp to access a server without authorization, interfere with the service, or violate laws or the terms that apply to T3 Code, Zepp, Amazfit, or Cloudflare.
+          </p>
+        </section>
+
+        <section>
+          <h2>Credentials and connections</h2>
+          <p>
+            When you use the public gateway, you direct it to connect to the T3 Code server URL you provide using the scoped session token you provide. The gateway stores those values with the paired device record until you revoke that record. The watch receives a separate device key, not the T3 Code session token.
+          </p>
+          <p>
+            You are responsible for choosing a T3 Code server and gateway you trust. Revoke your device key from the pairing dashboard and revoke the associated session token in T3 Code when you no longer want T3Zepp to access the server.
+          </p>
+        </section>
+
+        <section>
+          <h2>Open-source license</h2>
+          <p>
+            T3Zepp software is provided under the <a href="https://github.com/devarshishimpi/t3zepp/blob/main/LICENSE" target="_blank" rel="noopener">GNU Affero General Public License version 3.0</a>. That license governs your rights to use, modify, and distribute the software. These terms cover use of the hosted website and public gateway and do not replace the software license.
+          </p>
+        </section>
+
+        <section>
+          <h2>Third-party services and compatibility</h2>
+          <p>
+            T3Zepp depends on services and software provided by others, including Cloudflare, Zepp, Amazfit, and T3 Code. Those services may change, become unavailable, or stop supporting a device or feature. Their own terms and privacy policies apply to your use of them.
+          </p>
+          <p>
+            Compatibility information is provided for convenience and may change. Check the <a href="/install">installation page</a> for currently confirmed watch support.
+          </p>
+        </section>
+
+        <section>
+          <h2>Availability and changes</h2>
+          <p>
+            T3Zepp is provided as a community project. Features, the public gateway, and these terms may change or be discontinued. We may suspend access when needed to protect the service, users, or connected systems.
+          </p>
+        </section>
+
+        <section>
+          <h2>No warranty</h2>
+          <p>
+            To the extent permitted by law, T3Zepp is provided as is and as available, without warranties or guarantees. We do not promise uninterrupted service, compatibility with every device, or that usage summaries will always be complete, current, or error-free. You are responsible for decisions made using information shown by T3Zepp.
+          </p>
+        </section>
+
+        <section>
+          <h2>Limits of liability</h2>
+          <p>
+            To the extent permitted by law, the T3Zepp maintainers are not liable for indirect, incidental, special, consequential, or punitive damages, loss of data, loss of profits, or disruption resulting from use of or inability to use T3Zepp. Nothing in these terms limits liability that cannot legally be limited.
+          </p>
+        </section>
+
+        <section>
+          <h2>Changes and contact</h2>
+          <p>
+            We may update these terms by posting a new version here and changing the effective date. Continued use after an update means you accept the revised terms, to the extent permitted by law.
+          </p>
+          <p>
+            Questions about these terms can be sent through <a href="https://github.com/devarshishimpi/t3zepp/issues" target="_blank" rel="noopener">GitHub Issues</a>. Do not post private credentials or personal information in a public issue.
+          </p>
+        </section>
+      </div>
+    </article>
+  </main>
+  <SiteFooter page="legal" />
+</SiteLayout>

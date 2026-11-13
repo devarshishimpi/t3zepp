@@ -1,0 +1,18 @@
+/* Bip 6 glass fit, based on the photographed face: x=18-56%, y=22-68%.
+   Wider left coverage hides the screen graphic baked into the product image.
+   The skew and rotated UI follow the tilted glass; the rounded inset preserves
+   a small silver bezel line around the enlarged display. */
+.real-watch-d .display-bip-6 {
+  left: 18%;
+  top: 22%;
+  width: 38%;
+  height: 46%;
+  border-radius: 15%;
+  transform: skewY(1.5deg);
+  clip-path: inset(2% round 15%);
+}
+
+.real-watch-d .display-bip-6 .watch-ui {
+  transform: rotate(-8deg) scale(1.12);
+  transform-origin: 50% 50%;
+}

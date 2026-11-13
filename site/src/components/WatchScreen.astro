@@ -1,0 +1,52 @@
+---
+interface Props {
+  range: string;
+  total: string;
+  summary: string;
+  peak: string;
+  mode: "cost" | "tokens";
+  preserveAspectRatio: "none" | "xMidYMid meet";
+}
+
+const { range, total, summary, peak, mode } = Astro.props;
+const metric = mode === "tokens" ? "TOKENS" : "TOTAL COST";
+const trend = mode === "tokens" ? "TOKEN TREND" : "COST TREND";
+---
+
+<svg
+  class="watch-ui"
+  viewBox="0 0 480 480"
+  preserveAspectRatio="xMidYMid meet"
+  aria-hidden="true"
+>
+  <rect width="480" height="480" fill="#000" />
+  <g transform="translate(50.4 57.1) scale(.79)" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+    <text x="240" y="89" fill="#d8d8dc" font-size="24" font-weight="600" text-anchor="middle" letter-spacing="2">
+      T3 CODE
+    </text>
+    <rect x="105" y="111" width="124" height="48" rx="15" fill="#17171a" />
+    <text x="167" y="142" fill="#f4f4f5" font-size="25" text-anchor="middle">{range}</text>
+    <rect x="251" y="111" width="124" height="48" rx="15" fill="#17171a" />
+    <text x="313" y="142" fill="#f4f4f5" font-size="21" text-anchor="middle">REFRESH</text>
+
+    <rect x="88" y="177" width="304" height="48" rx="14" fill="#151518" />
+    <rect x={mode === "tokens" ? "190" : "91"} y="180" width="98" height="42" rx="11" fill="#323237" />
+    <text x="140" y="207" fill={mode === "cost" ? "#f4f4f5" : "#97979d"} font-size="19" text-anchor="middle">Cost</text>
+    <text x="240" y="207" fill={mode === "tokens" ? "#f4f4f5" : "#97979d"} font-size="19" text-anchor="middle">Tokens</text>
+    <text x="340" y="207" fill="#97979d" font-size="19" text-anchor="middle">Limits</text>
+
+    <text x="240" y="265" fill="#a2a2a8" font-size="19" text-anchor="middle" letter-spacing="1.5">{metric}</text>
+    <text x="240" y="319" fill="#f4f4f5" font-size="58" font-weight="600" text-anchor="middle" letter-spacing="-2">{total}</text>
+    <text x="240" y="348" fill="#a2a2a8" font-size="17" text-anchor="middle">{summary}</text>
+
+    <text x="104" y="381" fill="#f4f4f5" font-size="17" font-weight="600" letter-spacing=".8">{trend}</text>
+    <text x="376" y="381" fill="#a2a2a8" font-size="15" text-anchor="end">{peak}</text>
+    <svg x="120" y="388" width="240" height="46" viewBox="0 0 240 46" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 8H240M0 23H240M0 38H240" fill="none" stroke="#25252a" stroke-width="1" />
+      <polyline points="0,29 22,25 44,31 66,17 88,22 110,11 132,20 154,7 176,15 198,4 220,13 240,2" fill="none" stroke="#d8d8dc" stroke-width="2" />
+      <polyline points="0,38 22,34 44,36 66,29 88,32 110,25 132,30 154,24 176,28 198,19 220,24 240,17" fill="none" stroke="#8b8b91" stroke-width="2" />
+    </svg>
+    <text x="174" y="455" fill="#a2a2a8" font-size="16" text-anchor="middle">{range} AGO</text>
+    <text x="306" y="455" fill="#a2a2a8" font-size="16" text-anchor="middle">NOW</text>
+  </g>
+</svg>

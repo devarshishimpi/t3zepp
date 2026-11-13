@@ -1,4 +1,0 @@
-# Copy to .dev.vars for local development. Never commit the filled-in file.
-T3_BASE_URL=https://your-public-t3-host.example
-T3_ACCESS_TOKEN=replace-with-a-scoped-revocable-t3-session
-WORKER_ACCESS_KEY=replace-with-a-random-32-byte-hex-key

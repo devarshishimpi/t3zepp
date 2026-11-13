@@ -21,7 +21,7 @@ AppSettingsPage({
           },
           [
             Text({
-              text: "T3 Zepp",
+              text: "T3Zepp",
               style: {
                 color: "#ffffff",
                 fontSize: "20px",
@@ -31,7 +31,7 @@ AppSettingsPage({
               },
             }),
             Text({
-              text: "A community-built companion for T3 Code on Amazfit watches. Current support includes T-Rex 3, with room to grow into more watch-first experiences over time.",
+              text: "T3 Code companion for Amazfit.\n\nBring the useful bits of T3 Code to your Amazfit watch: quick updates on usage, limits, notifications, and more.",
               style: {
                 color: "#a1a1aa",
                 fontSize: "13px",
@@ -204,7 +204,7 @@ AppSettingsPage({
               },
             }),
             Text({
-              text: "Independent community companion for T3 Code on Zepp OS 4.0. AGPL-3.0 licensed.",
+              text: "T3Zepp is an independent companion for T3 Code on Zepp OS 4.0. AGPL-3.0 licensed.",
               style: {
                 color: "#71717a",
                 fontSize: "12px",

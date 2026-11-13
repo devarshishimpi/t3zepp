@@ -15,21 +15,44 @@ const request = (body = {}, method = "POST", path = "/v1/usage") =>
     body: method === "POST" ? JSON.stringify(body) : undefined,
   });
 
-test("serves landing page on / and health check on /health", async () => {
+const mockStaticAssets = {
+  async fetch(request) {
+    const path = new URL(request.url).pathname;
+    const pages = {
+      "/": "<!doctype html><title>T3 Zepp landing</title>",
+      "/install": "<!doctype html><title>Install T3 Zepp</title>",
+      "/pair": "<!doctype html><title>T3 Zepp Pairing</title>",
+    };
+    const html = pages[path];
+    return new Response(html ?? "Not found", {
+      status: html ? 200 : 404,
+      headers: { "content-type": "text/html; charset=utf-8" },
+    });
+  },
+};
+
+test("serves static pages through Assets and health check on /health", async () => {
   const worker = createWorker();
-  const root = await worker.fetch(request({}, "GET", "/"), {});
+  const env = { ASSETS: mockStaticAssets };
+  const root = await worker.fetch(request({}, "GET", "/"), env);
   assert.equal(root.status, 200);
   assert.equal(root.headers.get("content-type"), "text/html; charset=utf-8");
   const html = await root.text();
-  assert.match(html, /T3 Zepp/);
-  assert.match(html, /https:\/\/t3zepp\.devarshi\.dev/);
+  assert.match(html, /T3 Zepp landing/);
 
-  const health = await worker.fetch(request({}, "GET", "/health"), {});
+  const install = await worker.fetch(request({}, "GET", "/install"), env);
+  assert.match(await install.text(), /Install T3 Zepp/);
+
+  const health = await worker.fetch(request({}, "GET", "/health"), env);
   assert.deepEqual(await health.json(), { ok: true });
 
-  const missingCreds = await worker.fetch(request({ range: "7d" }), {});
+  const missingCreds = await worker.fetch(request({ range: "7d" }), env);
   assert.equal(missingCreds.status, 400);
   assert.equal(missingCreds.headers.get("cache-control"), "no-store");
+
+  const missingApiRoute = await worker.fetch(request({}, "GET", "/api/not-found"), env);
+  assert.equal(missingApiRoute.status, 404);
+  assert.deepEqual(await missingApiRoute.json(), { error: "Not found" });
 });
 
 test("routes only validated range requests through the custom T3 configuration", async () => {
@@ -77,6 +100,32 @@ test("routes only validated range requests through the custom T3 configuration",
     timeZone: "UTC",
   });
   assert.equal(calls.length, 1);
+});
+
+test("ignores request-controlled worker forwarding headers", async () => {
+  const calls = [];
+  const worker = createWorker({
+    readUsage: async (input) => {
+      calls.push(input);
+      return {
+        usages: {
+          hourly: { buckets: [], sinceDay: "2026-11-08", untilDay: "2026-11-09", timeZone: "UTC" },
+          daily: { buckets: [], sinceDay: "2026-08-12", untilDay: "2026-11-09", timeZone: "UTC" },
+        },
+        providers: [],
+        usageLimitSources: [],
+      };
+    },
+  });
+  const forwarded = new Request("https://worker.example.test/v1/usage", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-target-worker": "https://attacker.example.test" },
+    body: JSON.stringify(validT3),
+  });
+  const response = await worker.fetch(forwarded, {});
+  assert.equal(response.status, 200);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].base, validT3.t3BaseUrl);
 });
 
 test("rejects unknown routes, methods, ranges, oversized bodies, and missing credentials", async () => {
@@ -194,6 +243,7 @@ test("supports public proxy mode with custom T3 credentials in body, headers, an
 test("serves /pair and handles D1 deviceKey pairing and usage flow", async () => {
   const devices = new Map();
   const sessions = new Map();
+  const rateLimits = new Map();
 
   const mockDb = {
     prepare(sql) {
@@ -204,6 +254,19 @@ test("serves /pair and handles D1 deviceKey pairing and usage flow", async () =>
           return this;
         },
         async first() {
+          if (sql.includes("INSERT INTO pairing_rate_limits")) {
+            const attempts = (rateLimits.get(bound[0]) || 0) + 1;
+            rateLimits.set(bound[0], attempts);
+            return { attempts };
+          }
+          if (sql.includes("UPDATE pairing_sessions SET claimed = 1")) {
+            const session = sessions.get(bound[0]);
+            if (session && session.claimed === 0 && session.expires_at > bound[1]) {
+              session.claimed = 1;
+              return { device_key: session.device_key };
+            }
+            return null;
+          }
           if (sql.includes("FROM devices WHERE device_key = ?")) {
             return devices.get(bound[0]) || null;
           }
@@ -213,10 +276,6 @@ test("serves /pair and handles D1 deviceKey pairing and usage flow", async () =>
           return null;
         },
         async run() {
-          if (sql.includes("UPDATE pairing_sessions SET claimed = 1")) {
-            const s = sessions.get(bound[0]);
-            if (s) s.claimed = 1;
-          }
           if (sql.includes("UPDATE devices SET last_used_at = ?")) {
             const d = devices.get(bound[1]);
             if (d) {
@@ -253,8 +312,8 @@ test("serves /pair and handles D1 deviceKey pairing and usage flow", async () =>
         pairing_code: sessStmt._bound[0],
         device_key: sessStmt._bound[1],
         expires_at: sessStmt._bound[2],
-        claimed: sessStmt._bound[3],
-        created_at: sessStmt._bound[4],
+        claimed: 0,
+        created_at: sessStmt._bound[3],
       });
       return [];
     },
@@ -287,7 +346,7 @@ test("serves /pair and handles D1 deviceKey pairing and usage flow", async () =>
     },
   });
 
-  const env = { DB: mockDb };
+  const env = { DB: mockDb, ASSETS: mockStaticAssets };
 
   // 1. GET /pair returns HTML
   const pairPage = await worker.fetch(new Request("https://t3zepp.devarshi.dev/pair"), env);
@@ -297,7 +356,7 @@ test("serves /pair and handles D1 deviceKey pairing and usage flow", async () =>
   // 2. POST /api/pair/init
   const initReq = new Request("https://t3zepp.devarshi.dev/api/pair/init", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", "cf-connecting-ip": "192.0.2.10" },
     body: JSON.stringify({
       t3BaseUrl: "https://d1-tunnel.example.com",
       t3AccessToken: "d1-token-999",
@@ -309,6 +368,29 @@ test("serves /pair and handles D1 deviceKey pairing and usage flow", async () =>
   const initData = await initResp.json();
   assert.match(initData.deviceKey, /^tz_live_/);
   assert.match(initData.pairingCode, /^\d{6}$/);
+
+  for (let attempt = 2; attempt <= 5; attempt++) {
+    const allowed = await worker.fetch(new Request("https://t3zepp.devarshi.dev/api/pair/init", {
+      method: "POST",
+      headers: { "content-type": "application/json", "cf-connecting-ip": "192.0.2.10" },
+      body: JSON.stringify({
+        t3BaseUrl: "https://d1-tunnel.example.com",
+        t3AccessToken: "d1-token-999",
+        label: "My Watch",
+      }),
+    }), env);
+    assert.equal(allowed.status, 200, `attempt ${attempt} should be allowed`);
+  }
+  const limited = await worker.fetch(new Request("https://t3zepp.devarshi.dev/api/pair/init", {
+    method: "POST",
+    headers: { "content-type": "application/json", "cf-connecting-ip": "192.0.2.10" },
+    body: JSON.stringify({
+      t3BaseUrl: "https://d1-tunnel.example.com",
+      t3AccessToken: "d1-token-999",
+      label: "My Watch",
+    }),
+  }), env);
+  assert.equal(limited.status, 429);
 
   // 3. POST /api/pair/claim
   const claimReq = new Request("https://t3zepp.devarshi.dev/api/pair/claim", {

@@ -1,0 +1,21 @@
+---
+interface Props {
+  className: string;
+  image: string;
+  loading?: "eager" | "lazy";
+}
+
+const { className, image, loading = "lazy" } = Astro.props;
+---
+
+<div class:list={["real-watch", className]}>
+  <img
+    src={image}
+    alt=""
+    width="1000"
+    height="1000"
+    decoding="async"
+    loading={loading}
+    fetchpriority={loading === "eager" ? "high" : "auto"}
+  />
+</div>

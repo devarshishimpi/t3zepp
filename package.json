@@ -5,6 +5,7 @@
   "type": "module",
   "workspaces": [
     "app",
+    "site",
     "worker"
   ],
   "scripts": {
@@ -16,8 +17,18 @@
     "check:app": "npm run check --workspace=app",
     "dev:worker": "npm run dev --workspace=worker",
     "dev:app": "npm run dev --workspace=app",
-    "deploy:worker": "npm run deploy --workspace=worker",
+    "dev:site": "vp run --filter @t3zepp/site dev",
+    "build:site": "vp run --filter @t3zepp/site build",
+    "preview:site": "vp run --filter @t3zepp/site preview",
+    "deploy:worker": "npm run build:site && npm run deploy --workspace=worker",
     "build:app": "npm run build --workspace=app",
     "preview:app": "npm run preview --workspace=app"
+  },
+  "devDependencies": {
+    "vite-plus": "1.6.0"
+  },
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.6.0",
+    "vitest": "5.1.0"
   }
 }

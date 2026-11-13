@@ -2,7 +2,7 @@
   "configVersion": "v3",
   "app": {
     "appId": 1135778,
-    "appName": "T3 Zepp",
+    "appName": "T3Zepp",
     "appType": "app",
     "version": {
       "code": 17,
@@ -10,7 +10,7 @@
     },
     "icon": "icon.png",
     "vender": "personal",
-    "description": "Unofficial Zepp OS companion for T3 Code on Amazfit watches. Currently supported: Amazfit T-Rex 3 (Zepp OS 4.0).\n\nNot affiliated with T3 Tools. Preview components and the demo build come from the MIT-licensed t3code repository.\n\nThis is an independent community project.\n\nLicense: AGPL-3.0\nGitHub: https://github.com/devarshishimpi/t3zepp"
+    "description": "T3 Code companion for Amazfit.\n\nBring the useful bits of T3 Code to your Amazfit watch: quick updates on usage, limits, notifications, and more."
   },
   "permissions": ["data:os.device.info", "device:os.local_storage"],
   "runtime": {
@@ -43,7 +43,7 @@
   },
   "i18n": {
     "en-US": {
-      "appName": "T3 Zepp"
+      "appName": "T3Zepp"
     }
   },
   "defaultLanguage": "en-US"

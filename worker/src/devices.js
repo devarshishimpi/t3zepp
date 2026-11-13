@@ -15,14 +15,20 @@ export function generatePairingCode() {
   return String(code);
 }
 
+function normalizeT3BaseUrl(value) {
+  const url = new URL(value.trim());
+  if (url.protocol !== "https:" || url.username || url.password || url.search || url.hash || url.pathname !== "/") {
+    throw new Error("T3 Code server URL must be an HTTPS origin");
+  }
+  return url.origin;
+}
+
 export async function createDevice(db, { t3BaseUrl, t3AccessToken, label = "T3 Code Instance" }) {
   if (!db) throw new Error("Database is not configured");
-  if (!t3BaseUrl || typeof t3BaseUrl !== "string") throw new Error("Invalid T3 Base URL");
+  if (!t3BaseUrl || typeof t3BaseUrl !== "string") throw new Error("Invalid T3 Code server URL");
   if (!t3AccessToken || typeof t3AccessToken !== "string") throw new Error("Invalid T3 Access Token");
 
-  const normalizedUrl = new URL(t3BaseUrl.trim());
-  if (normalizedUrl.protocol !== "https:") throw new Error("T3 Base URL must use HTTPS");
-  const origin = normalizedUrl.origin;
+  const origin = normalizeT3BaseUrl(t3BaseUrl);
 
   const deviceKey = generateDeviceKey();
   const pairingCode = generatePairingCode();
@@ -52,16 +58,10 @@ export async function claimPairingCode(db, pairingCode) {
   if (cleanCode.length !== 6) throw new Error("Pairing code must be 6 digits");
 
   const session = await db.prepare(
-    "SELECT pairing_code, device_key, expires_at, claimed FROM pairing_sessions WHERE pairing_code = ?",
-  ).bind(cleanCode).first();
-
-  if (!session) throw new Error("Pairing code not found");
-  if (session.claimed === 1) throw new Error("Pairing code already claimed");
-  if (Date.now() > session.expires_at) throw new Error("Pairing code expired");
-
-  await db.prepare(
-    "UPDATE pairing_sessions SET claimed = 1 WHERE pairing_code = ?",
-  ).bind(cleanCode).run();
+    "UPDATE pairing_sessions SET claimed = 1 " +
+      "WHERE pairing_code = ? AND claimed = 0 AND expires_at > ? RETURNING device_key",
+  ).bind(cleanCode, Date.now()).first();
+  if (!session) throw new Error("Pairing code is invalid, expired, or already claimed");
 
   return {
     deviceKey: session.device_key,
@@ -83,7 +83,7 @@ export async function updateDevice(db, { deviceKey, t3BaseUrl, t3AccessToken }) 
   const existing = await getDevice(db, deviceKey);
   if (!existing) throw new Error("Device key not found");
 
-  const newBase = t3BaseUrl ? new URL(t3BaseUrl.trim()).origin : existing.t3_base_url;
+  const newBase = t3BaseUrl ? normalizeT3BaseUrl(t3BaseUrl) : existing.t3_base_url;
   const newToken = t3AccessToken ? t3AccessToken.trim() : existing.t3_access_token;
 
   await db.prepare(

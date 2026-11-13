@@ -1,0 +1,16 @@
+---
+import WatchMockup from "./WatchMockup.astro";
+
+const watches = [
+  { className: "real-watch-a", image: "/watches/trex3.webp", loading: "eager" },
+  { className: "real-watch-b", image: "/watches/trex3pro.webp", loading: "lazy" },
+  { className: "real-watch-c", image: "/watches/balance2.webp", loading: "lazy" },
+  { className: "real-watch-d", image: "/watches/bip6.webp", loading: "lazy" },
+] as const;
+---
+
+<div class="watch-group" aria-hidden="true">
+  {watches.map((watch) => (
+    <WatchMockup {...watch} />
+  ))}
+</div>

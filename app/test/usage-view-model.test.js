@@ -45,7 +45,7 @@ test("formatters preserve meaningful precision for small cost and token values",
   assert.equal(formatTokens(1234), "1,234");
 });
 
-test("pricing metadata has display-safe defaults when the T3 snapshot omits it", () => {
+test("pricing metadata has display-safe defaults when the T3 Code snapshot omits it", () => {
   const summary = summarizeUsage({ usage: { buckets: [] } });
   assert.deepEqual(summary.pricing, {
     status: "unavailable",

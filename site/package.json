@@ -1,0 +1,15 @@
+{
+  "name": "@t3zepp/site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 0.0.0.0",
+    "build": "astro build",
+    "preview": "astro preview --host 0.0.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.3.5",
+    "astro": "7.4.10",
+    "tailwindcss": "4.3.5"
+  }
+}
