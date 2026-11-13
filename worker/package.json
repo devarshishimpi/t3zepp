@@ -1,0 +1,15 @@
+{
+  "name": "@t3zepp/worker",
+  "version": "0.1.7",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node --test test/*.test.js",
+    "check": "node --check src/index.js && node --check src/t3-rpc.js && node --check src/ranges.js && node --check src/compact.js && node --check src/summarize.js && node --check src/devices.js"
+  },
+  "devDependencies": {
+    "wrangler": "^4.87.0"
+  }
+}

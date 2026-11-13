@@ -1,0 +1,116 @@
+.code-copy-block {
+  position: relative;
+  margin: 11px 0 13px;
+}
+
+.code-copy-block > pre {
+  margin: 0;
+  padding-top: 13px;
+}
+
+.step .code-copy-block > pre {
+  margin: 0;
+}
+
+.code-copy-button {
+  position: absolute;
+  top: 9px;
+  right: 8px;
+  z-index: 1;
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border: 1px solid #ffffff24;
+  border-radius: 5px;
+  background: #19191c;
+  color: #c7c7ce;
+  font: 12px/1 var(--font-sans);
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease, border-color .16s ease;
+}
+
+.code-copy-button:hover {
+  border-color: #ffffff60;
+  background: #242428;
+  color: #fff;
+}
+
+.code-copy-button:focus-visible {
+  outline: 2px solid #f2f2f0;
+  outline-offset: 3px;
+}
+
+.code-copy-button svg,
+.copy-toast svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.code-copy-button span {
+  display: none;
+}
+
+.code-copy-button.is-copied {
+  border-color: #ffffff50;
+  color: #fff;
+}
+
+.copy-toast {
+  position: fixed;
+  z-index: 1000;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 15px;
+  border: 1px solid #ffffff28;
+  border-radius: 8px;
+  background: #18181b;
+  color: #f4f4f5;
+  box-shadow: 0 12px 36px #0008;
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+.copy-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.copy-toast svg {
+  color: #d4d4d8;
+}
+
+.copy-toast.is-error svg {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .copy-toast {
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .code-copy-button,
+  .copy-toast {
+    transition: none;
+  }
+}

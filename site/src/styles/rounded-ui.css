@@ -1,0 +1,102 @@
+:root {
+  --radius-control: 10px;
+  --radius-surface: 15px;
+  --radius-feature: 18px;
+}
+
+:is(.button, .nav-cta, .intro-actions .button, .btn-primary, .btn-danger, .copy-btn) {
+  border-radius: var(--radius-control);
+}
+
+:is(.brand-icon, .logo-badge, .brand-mark) {
+  border-radius: 10px;
+}
+
+:is(input, textarea, select, pre, code, .device-key-box, .status-msg) {
+  border-radius: 9px;
+}
+
+:is(.panel, .card, .result-box, .note) {
+  border-radius: var(--radius-surface);
+}
+
+.eyebrow {
+  border-radius: 999px;
+}
+
+.number {
+  border-radius: 50%;
+}
+
+.stats-card {
+  padding: 26px;
+  border: 1px solid #ffffff24;
+  border-radius: var(--radius-feature);
+  background: linear-gradient(145deg, #141416, #0b0b0d);
+}
+
+.cta-box {
+  padding: clamp(30px, 5vw, 58px);
+  border: 1px solid #ffffff24;
+  border-radius: var(--radius-feature);
+  background: #111113;
+}
+
+.overview {
+  gap: 12px;
+  border: 0;
+}
+
+.overview .panel {
+  padding: 20px;
+  border: 1px solid #ffffff24;
+  border-radius: var(--radius-surface);
+  background: #111113;
+}
+
+.note {
+  padding: 18px 20px;
+  border: 1px solid #ffffff24;
+  border-radius: var(--radius-surface);
+  background: #101012;
+}
+
+.tabs {
+  padding: 4px;
+  border: 1px solid #ffffff24;
+  border-radius: var(--radius-surface);
+  background: #111113;
+}
+
+.tab-btn {
+  border-radius: 10px;
+}
+
+.tab-btn.active {
+  border-radius: 10px;
+}
+
+.card {
+  padding: 24px;
+  border: 1px solid #ffffff24;
+  border-radius: var(--radius-surface);
+  background: #101012;
+}
+
+.result-box {
+  border-radius: var(--radius-feature);
+}
+
+@media (max-width: 760px) {
+  .stats-card {
+    padding: 22px 18px;
+  }
+
+  .cta-box {
+    padding: 32px 22px;
+  }
+
+  .card {
+    padding: 20px 16px;
+  }
+}

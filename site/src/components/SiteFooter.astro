@@ -1,0 +1,36 @@
+---
+interface Props {
+  page: "home" | "install" | "pair" | "legal";
+}
+
+const { page } = Astro.props;
+const home = page === "home";
+const legal = page === "legal";
+---
+
+<footer
+  id="site-footer"
+  class:list={["footer", legal && "legal-footer", home && "home-footer"]}
+  data-dock-home={home ? "" : undefined}
+>
+  <div class="site-footer-inner">
+    <a class="brand" href="/" aria-label="T3Zepp home">
+      <img class="brand-icon brand-mark" src="/t3-icon.png" alt="" width="28" height="28" />
+      <span>Zepp</span>
+    </a>
+    <span class="footer-copy">
+      Built by{" "}
+      <a href="https://devarshi.dev" target="_blank" rel="noopener noreferrer">
+        Devarshi Shimpi
+      </a>
+      {" "}&middot; Not affiliated with T3 Tools
+    </span>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="/install">Installation</a>
+      <a href="/pair">Pairing</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+      <a href="https://github.com/devarshishimpi/t3zepp" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</footer>

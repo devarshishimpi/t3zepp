@@ -1,0 +1,165 @@
+---
+import OverviewPanel from "../components/OverviewPanel.astro";
+import SetupStep from "../components/SetupStep.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteNav from "../components/SiteNav.astro";
+import SiteLayout from "../layouts/SiteLayout.astro";
+import "../styles/install.css";
+import "../styles/rounded-ui.css";
+---
+
+<SiteLayout
+  title="Install T3Zepp | T3 Code watch companion"
+  description="Install the public T3Zepp app from the Zepp Store and connect it to your T3 Code server through the hosted proxy."
+>
+  <SiteNav page="install" />
+  <main class="container">
+    <header class="intro">
+      <div class="eyebrow">Public app · Hosted proxy</div>
+      <h1>Install and connect T3Zepp.</h1>
+      <p>
+        Most people can install the public Zepp Store app and use the hosted
+        proxy at <strong>t3zepp.devarshi.dev</strong>. You do not need to build
+        the app or run a proxy Worker yourself.
+      </p>
+      <div class="intro-actions">
+        <a class="button primary" href="#step-install-app">
+          Install from Zepp Store
+        </a>
+        <a class="button" href="/pair">
+          Already installed? Pair now
+        </a>
+      </div>
+      <div class="overview">
+        <OverviewPanel
+          label="Watch compatibility"
+          title="Amazfit T-Rex 3 · Zepp OS 4.0"
+          description="Compatibility is confirmed for this model and OS version."
+        />
+        <OverviewPanel
+          label="What you need"
+          title="Zepp Store app · T3 Code · read-only token"
+          description="The public app already uses T3Zepp's hosted proxy. No source build or Worker setup is needed."
+        />
+      </div>
+    </header>
+
+    <section class="steps" aria-labelledby="setup-heading">
+      <header class="steps-head">
+        <div class="label">SETUP / 4 STEPS</div>
+        <h2 id="setup-heading">From install to first sync.</h2>
+        <p>
+          Install the public app, connect your T3 Code server once, and sync
+          through the hosted proxy.
+        </p>
+      </header>
+
+      <div class="steps-layout">
+        <nav class="step-index" aria-label="Setup steps">
+          <a href="#step-install-app">
+            <span>01</span>Install the app
+          </a>
+          <a href="#step-server">
+            <span>02</span>Reach your server
+          </a>
+          <a href="#step-token">
+            <span>03</span>Create a token
+          </a>
+          <a href="#step-pair">
+            <span>04</span>Pair your watch
+          </a>
+        </nav>
+        <div class="steps-content">
+          <SetupStep id="step-install-app" number="01">
+            <h3>Install the public watch app</h3>
+            <p>
+              Install T3Zepp from the Zepp Store. The public release is ready
+              to use and already connects through{" "}
+              <strong>https://t3zepp.devarshi.dev</strong>. You do not need
+              Node.js, the Zeus CLI, or a source build.
+            </p>
+            <p>
+              The landing page's <strong>Install T3Zepp</strong> button opens
+              this guide. If you are already in Zepp, search the Zepp Store
+              for <strong>T3Zepp</strong>.
+            </p>
+          </SetupStep>
+
+          <SetupStep id="step-server" number="02">
+            <h3>Make your T3 Code server reachable</h3>
+            <p>
+              The hosted proxy needs a public HTTPS address for your T3 Code
+              server. T3 Code listens on port <code>3773</code> by default. For
+              a quick Cloudflare Tunnel, run:
+            </p>
+            <pre>cloudflared tunnel --url http://127.0.0.1:3773</pre>
+            <p>
+              You can also use a named Cloudflare Tunnel, Localtunnel, or
+              ngrok. Keep the HTTPS URL it provides.
+            </p>
+          </SetupStep>
+
+          <SetupStep id="step-token" number="03">
+            <h3>Create a T3 Code read-only session token</h3>
+            <p>
+              In a terminal where the <code>t3</code> CLI is available, create a
+              scoped token for the data T3Zepp reads:
+            </p>
+            <pre>t3 auth session issue --scope diagnostics:read --scope orchestration:read --ttl 365d --label "T3Zepp" --token-only</pre>
+            <p>
+              Keep this token private. Revoke it later with
+              <code>t3 auth session revoke &lt;session-id&gt;</code>.
+            </p>
+          </SetupStep>
+
+          <SetupStep id="step-pair" number="04">
+            <h3>Pair your phone and watch</h3>
+            <p>
+              Open the{" "}
+              <a class="inline" href="/pair">
+                pairing dashboard
+              </a>
+              , enter your T3 Code server URL and session token, then generate
+              a short-lived pairing code. This dashboard uses the public
+              T3Zepp proxy.
+            </p>
+            <p>
+              On your phone, open your watch’s page in Zepp, find T3Zepp in
+              the app list, and open its settings. Enter the pairing code and
+              save. The phone exchanges it for a device key and stores that
+              key locally.
+            </p>
+            <p>
+              Open T3Zepp on the watch and tap <strong>Refresh</strong> to
+              sync.
+            </p>
+          </SetupStep>
+
+          <div class="notes">
+            <div class="note">
+              <strong class="note-title">When a tunnel URL changes</strong>
+              Open the pairing dashboard and choose{" "}
+              <strong>Update Tunnel URL</strong>. Your watch keeps using the
+              same device key, so you don’t need to pair it again. You can also
+              revoke a device key from the dashboard.
+            </div>
+            <div class="note">
+              <strong class="note-title">Privacy and self-hosting</strong>
+              Use a T3 Code read-only session limited to{" "}
+              <code>diagnostics:read</code> and
+              <code>orchestration:read</code>. The watch receives a device key,
+              not your T3 Code session token. T3Zepp is an independent
+              community project and is not affiliated with T3 Tools. If you
+              prefer to run your own proxy or build the app from source, see
+              the optional{" "}
+              <a class="inline" href="https://github.com/devarshishimpi/t3zepp#self-host-the-proxy-worker-optional">
+                self-hosting instructions
+              </a>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <SiteFooter page="install" />
+</SiteLayout>

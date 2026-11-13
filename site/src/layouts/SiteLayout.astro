@@ -1,0 +1,167 @@
+---
+import "../styles/global.css";
+import "../styles/code-copy.css";
+
+const {
+  title,
+  description = "Bring the useful bits of T3 Code to your Amazfit watch: quick updates on usage, limits, notifications, and more.",
+  noindex = false,
+} = Astro.props;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefined;
+const socialImage = Astro.site ? new URL("/t3-icon.png", Astro.site) : undefined;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="application-name" content="T3Zepp" />
+    <meta name="description" content={description} />
+    <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="T3Zepp" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {socialImage && <meta property="og:image" content={socialImage} />}
+    {socialImage && <meta property="og:image:alt" content="T3Zepp app icon" />}
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {socialImage && <meta name="twitter:image" content={socialImage} />}
+    {socialImage && <meta name="twitter:image:alt" content="T3Zepp app icon" />}
+    <meta name="theme-color" content="#09090b" />
+    <link rel="icon" type="image/png" href="/t3-icon.png" />
+    <link rel="apple-touch-icon" href="/t3-icon.png" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Funnel+Display:wght@300..800&family=Host+Grotesk:wght@300..800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="min-h-screen antialiased">
+    <slot />
+    <script>
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (!reduceMotion && "IntersectionObserver" in window) {
+        const sections = document.querySelectorAll("main > *");
+
+        if (sections.length) {
+          const observer = new IntersectionObserver(
+            (entries, currentObserver) => {
+              for (const entry of entries) {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add("is-visible");
+                  currentObserver.unobserve(entry.target);
+                }
+              }
+            },
+            { rootMargin: "0px 0px -6% 0px", threshold: 0.04 },
+          );
+
+          sections.forEach((section, index) => {
+            section.classList.add("page-reveal");
+            section.style.setProperty("--page-reveal-delay", `${Math.min(index * 55, 165)}ms`);
+            observer.observe(section);
+          });
+
+          document.documentElement.classList.add("has-page-reveals");
+        }
+      }
+
+      const hero = document.querySelector(".hero");
+      const footer = document.querySelector("[data-dock-home]");
+
+      if (hero && footer && "IntersectionObserver" in window) {
+        const footerParent = footer.parentNode;
+        const footerNext = footer.nextSibling;
+        const heroObserver = new IntersectionObserver(([entry]) => {
+          const atPageEnd = !entry.isIntersecting;
+          footer.classList.toggle("is-at-page-end", atPageEnd);
+          if (atPageEnd && footer.parentNode !== hero.parentNode) {
+            hero.parentNode.append(footer);
+          } else if (!atPageEnd && footer.parentNode !== footerParent) {
+            footerParent.insertBefore(footer, footerNext);
+          }
+        });
+        heroObserver.observe(hero);
+      }
+
+      const codeBlocks = document.querySelectorAll("pre");
+
+      if (codeBlocks.length) {
+        const toast = document.createElement("div");
+        toast.className = "copy-toast";
+        toast.setAttribute("role", "status");
+        toast.setAttribute("aria-live", "polite");
+        toast.setAttribute("aria-atomic", "true");
+        toast.innerHTML = `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg><span></span>`;
+        document.body.append(toast);
+
+        let toastTimer;
+        const showCopyToast = (message, failed = false) => {
+          toast.classList.toggle("is-error", failed);
+          toast.querySelector("span").textContent = message;
+          toast.classList.add("is-visible");
+          window.clearTimeout(toastTimer);
+          toastTimer = window.setTimeout(() => toast.classList.remove("is-visible"), 2400);
+        };
+
+        const copyText = async (text) => {
+          if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text);
+            return;
+          }
+
+          const textarea = document.createElement("textarea");
+          textarea.value = text;
+          textarea.setAttribute("readonly", "");
+          textarea.style.position = "fixed";
+          textarea.style.opacity = "0";
+          document.body.append(textarea);
+          textarea.select();
+          const copied = document.execCommand("copy");
+          textarea.remove();
+          if (!copied) throw new Error("Clipboard copy failed");
+        };
+
+        for (const codeBlock of codeBlocks) {
+          const wrapper = document.createElement("div");
+          wrapper.className = "code-copy-block";
+          codeBlock.parentNode.insertBefore(wrapper, codeBlock);
+          wrapper.append(codeBlock);
+
+          const button = document.createElement("button");
+          button.className = "code-copy-button";
+          button.type = "button";
+          button.setAttribute("aria-label", "Copy code to clipboard");
+          button.innerHTML = `<svg aria-hidden="true" viewBox="0 0 24 24"><rect x="8" y="8" width="14" height="14" rx="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg><span>Copy</span>`;
+          wrapper.append(button);
+
+          button.addEventListener("click", async () => {
+            try {
+              await copyText(codeBlock.textContent.trim());
+              button.classList.add("is-copied");
+              button.setAttribute("aria-label", "Code copied");
+              button.innerHTML = `<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg><span>Copied</span>`;
+              showCopyToast("Copied to clipboard");
+              window.setTimeout(() => {
+                button.classList.remove("is-copied");
+                button.setAttribute("aria-label", "Copy code to clipboard");
+                button.innerHTML = `<svg aria-hidden="true" viewBox="0 0 24 24"><rect x="8" y="8" width="14" height="14" rx="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg><span>Copy</span>`;
+              }, 1800);
+            } catch {
+              showCopyToast("Could not copy. Select and copy the code.", true);
+            }
+          });
+        }
+      }
+    </script>
+  </body>
+</html>

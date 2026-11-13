@@ -1,0 +1,29 @@
+---
+interface Props {
+  page: "home" | "install" | "pair" | "legal";
+}
+
+const { page } = Astro.props;
+const currentPage = page === "legal" ? undefined : page;
+---
+
+<nav id="site-nav" class="topnav" data-page={page} aria-label="Main navigation">
+  <div class="site-nav-inner">
+    <a href="/" class="brand" aria-label="T3Zepp home">
+      <img class="brand-mark" src="/t3-icon.png" alt="" width="34" height="34" />
+      <span>Zepp</span>
+    </a>
+
+    <div class="navlinks">
+      <a href="/" aria-current={currentPage === "home" ? "page" : undefined}>Overview</a>
+      <a href="/install" aria-current={currentPage === "install" ? "page" : undefined}>
+        Installation
+      </a>
+      <a href="/pair" aria-current={currentPage === "pair" ? "page" : undefined}>Pairing</a>
+      <a href="https://github.com/devarshishimpi/t3zepp" target="_blank" rel="noopener">
+        GitHub
+      </a>
+      <a class="nav-cta" href="/install">Install T3Zepp</a>
+    </div>
+  </div>
+</nav>

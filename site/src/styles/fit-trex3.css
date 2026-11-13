@@ -1,0 +1,20 @@
+﻿/* T-Rex 3 / real-watch-a calibration:
+   The photographed glass is a near-circle about 44% of the square watch image,
+   centered at 50% x / 50.2% y. A 45.2% square with a 48.5% circle clip
+   yields a 43.8% visible diameter and preserves a small bezel safety margin.
+   Scale the SVG content 1.13x about center: the outer viewBox has generous
+   black padding, so this enlarges readable UI while keeping its text and chart
+   within the photographed circular glass.
+*/
+.real-watch-a .display-trex-3 {
+  left: 27.4%;
+  top: 27.8%;
+  width: 45.2%;
+  height: 45.2%;
+  clip-path: circle(48.5% at 50% 50%);
+}
+
+.real-watch-a .display-trex-3 .watch-ui {
+  transform: scale(1.13);
+  transform-origin: 50% 50%;
+}

@@ -1,0 +1,50 @@
+{
+  "configVersion": "v3",
+  "app": {
+    "appId": 1135778,
+    "appName": "T3Zepp",
+    "appType": "app",
+    "version": {
+      "code": 17,
+      "name": "0.1.7"
+    },
+    "icon": "icon.png",
+    "vender": "personal",
+    "description": "T3 Code companion for Amazfit.\n\nBring the useful bits of T3 Code to your Amazfit watch: quick updates on usage, limits, notifications, and more."
+  },
+  "permissions": ["data:os.device.info", "device:os.local_storage"],
+  "runtime": {
+    "apiVersion": {
+      "compatible": "4.0",
+      "target": "4.0",
+      "minVersion": "4.0"
+    }
+  },
+  "targets": {
+    "common": {
+      "module": {
+        "page": {
+          "pages": ["page/index"]
+        },
+        "app-side": {
+          "path": "app-side/index"
+        },
+        "setting": {
+          "path": "setting/index"
+        }
+      },
+      "platforms": [
+        { "name": "Amazfit T-Rex 3 Global", "deviceSource": 8716545, "st": "r", "sr": "w480" },
+        { "name": "Amazfit T-Rex 3 China", "deviceSource": 8716544, "st": "r", "sr": "w480" },
+        { "name": "Amazfit T-Rex 3", "deviceSource": 8716547, "st": "r", "sr": "w480" }
+      ],
+      "designWidth": 480
+    }
+  },
+  "i18n": {
+    "en-US": {
+      "appName": "T3Zepp"
+    }
+  },
+  "defaultLanguage": "en-US"
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@t3zepp/app",
+  "version": "0.1.7",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "zeus dev",
+    "build": "zpm build --path . --target common",
+    "preview": "zeus preview",
+    "test": "node --test test/*.test.js",
+    "check": "node --check app.js && node --check page/index.js && node --check app-side/index.js && node --check setting/index.js && node --check shared/usage-view-model.js && node --check shared/parse-json-body.js && node --check shared/worker-url.js && node --check shared/clean-limits.js"
+  },
+  "dependencies": {
+    "@zeppos/zml": "^0.0.43"
+  },
+  "devDependencies": {
+    "@zeppos/zpm": "2.8.5"
+  }
+}

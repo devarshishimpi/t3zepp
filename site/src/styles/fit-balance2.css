@@ -1,0 +1,17 @@
+/* Balance 2 glass fit: center at about 34.5% / 45.2% of the watch image.
+   The photographed glass is perspective-elliptical: keep the width inside
+   the bezel while extending the mask vertically to cover the full screen.
+   This keeps the blue/silver rim visible without exposing the sample dial. */
+.real-watch.real-watch-c > .display-balance-2 {
+  left: 13.25%;
+  top: 22.2%;
+  width: 42.5%;
+  height: 46%;
+  border-radius: 50%;
+  clip-path: ellipse(47% 49% at 50% 50%);
+}
+
+.real-watch.real-watch-c > .display-balance-2 > .watch-ui {
+  transform: scale(1.12);
+  transform-origin: 50% 50%;
+}

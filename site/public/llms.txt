@@ -1,0 +1,27 @@
+# T3Zepp
+
+> T3 Code companion for Amazfit.
+> Bring the useful bits of T3 Code to your Amazfit watch: quick updates on usage, limits, notifications, and more.
+
+## Product
+
+- T3Zepp runs on Zepp OS. Compatibility is confirmed for Amazfit T-Rex 3 running Zepp OS 4.0.
+- The public Zepp Store app uses the hosted proxy at https://t3zepp.devarshi.dev.
+- Most users do not need to build the app or host a proxy.
+- To connect, users provide a publicly reachable HTTPS URL for their T3 Code server and a read-only session token, then pair their watch using the setup dashboard.
+- The T3 Code session token is stored by the gateway and is not sent to the watch. The watch uses a separate revocable device key.
+- The app is free and licensed under AGPL-3.0.
+- T3Zepp is not affiliated with T3 Tools.
+
+## Key pages
+
+- [Overview](https://t3zepp.devarshi.dev/): product details and common questions.
+- [Installation and setup](https://t3zepp.devarshi.dev/install/): install the public app, connect a T3 Code server, and pair a watch.
+- [Pairing dashboard](https://t3zepp.devarshi.dev/pair/): create a pairing code and manage a device key. This page is for interactive use and is not indexed.
+- [Privacy policy](https://t3zepp.devarshi.dev/privacy/): data stored and processed by the app and hosted gateway.
+- [Terms of use](https://t3zepp.devarshi.dev/terms/): service terms.
+- [Source code](https://github.com/devarshishimpi/t3zepp): app, gateway, and site source.
+
+## Optional self-hosting
+
+Self-hosting the proxy or building the watch app from source is optional. Instructions are in the repository README.

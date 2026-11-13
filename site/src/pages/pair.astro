@@ -1,0 +1,293 @@
+---
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteNav from "../components/SiteNav.astro";
+import SiteLayout from "../layouts/SiteLayout.astro";
+import "../styles/pair.css";
+import "../styles/rounded-ui.css";
+---
+
+<SiteLayout
+  title="Pair T3Zepp with T3 Code | Setup"
+  description="Pair your Amazfit watch with T3Zepp, connect a T3 Code server, and manage its revocable device key."
+  noindex={true}
+>
+  <SiteNav page="pair" />
+
+  <main class="container">
+    <header>
+      <div class="page-kicker">DEVICE SETUP / T3 CODE</div>
+      <h1>
+        Connect once.
+        <br />
+        <em>Check in by wrist.</em>
+      </h1>
+      <p class="lead">
+        Connect T3Zepp to your T3 Code server on Amazfit T-Rex 3 through the
+        public gateway at <strong>t3zepp.devarshi.dev</strong>. It stores your
+        server URL and scoped read-only session token in its Cloudflare D1
+        device record so it can read usage. The token is not sent to the watch;
+        use a gateway you trust and revoke the token when needed. Your watch
+        receives a separate revocable key. Self-hosting the proxy is optional.
+      </p>
+    </header>
+
+    <div class="tabs-wrapper">
+      <div class="tabs" role="tablist" aria-label="Device actions">
+        <button
+          id="tab-button-pair"
+          class="tab-btn active"
+          data-tab="pair"
+          role="tab"
+          aria-selected="true"
+          aria-controls="tab-pair"
+          tabindex="0"
+        >
+          New pairing
+        </button>
+        <button
+          id="tab-button-update"
+          class="tab-btn"
+          data-tab="update"
+          role="tab"
+          aria-selected="false"
+          aria-controls="tab-update"
+          tabindex="-1"
+        >
+          Update tunnel
+        </button>
+        <button
+          id="tab-button-revoke"
+          class="tab-btn"
+          data-tab="revoke"
+          role="tab"
+          aria-selected="false"
+          aria-controls="tab-revoke"
+          tabindex="-1"
+        >
+          Revoke key
+        </button>
+      </div>
+    </div>
+
+    <div
+      id="tab-pair"
+      class="card"
+      role="tabpanel"
+      aria-labelledby="tab-button-pair"
+    >
+      <form id="pair-form">
+        <div class="form-group">
+          <label for="t3BaseUrl">
+            T3 Code server URL <span>(public HTTPS)</span>
+          </label>
+          <input
+            type="url"
+            id="t3BaseUrl"
+            placeholder="https://your-tunnel.example"
+            autocomplete="url"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+            required
+          />
+          <div class="hint">
+            The public HTTPS address pointing to your local T3 Code instance
+            (port 3773).
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="t3Token">Read-only T3 Code session token</label>
+          <textarea
+            id="t3Token"
+            rows="3"
+            placeholder="Paste the scoped token from your terminal"
+            autocomplete="off"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+            required
+          ></textarea>
+          <div class="hint">
+            Run 't3 auth session issue --scope diagnostics:read --scope
+            orchestration:read --ttl 365d --token-only' in your project.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="label">
+            Device name <span>(optional)</span>
+          </label>
+          <input type="text" id="label" placeholder="e.g. Daily watch" />
+        </div>
+
+        <button type="submit" class="btn-primary" id="pair-btn">
+          Create pairing code
+        </button>
+      </form>
+
+      <div id="pair-result" class="result-box" aria-live="polite">
+        <h2>Pairing code ready</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+          Enter this six-digit code in the Zepp app on your phone:
+        </p>
+        <div class="pair-code" id="res-code">
+          000000
+        </div>
+        <button type="button" class="copy-btn" data-copy="res-code">Copy pairing code</button>
+        <p style="font-size: 12px; color: var(--text-subtle);" id="res-timer">
+          Valid for 10 minutes
+        </p>
+
+        <div style="margin-top: 16px; text-align: left;">
+          <span class="result-label">Persistent Device Key</span>
+          <div class="device-key-box" id="res-key">
+            tz_live_...
+          </div>
+          <button type="button" class="copy-btn" data-copy="res-key">
+            Copy Device Key
+          </button>
+        </div>
+
+      </div>
+      <div
+        id="pair-status"
+        class="status-msg"
+        role="status"
+        aria-live="polite"
+        style="display: none;"
+      ></div>
+    </div>
+
+    <div
+      id="tab-update"
+      class="card"
+      role="tabpanel"
+      aria-labelledby="tab-button-update"
+      style="display: none;"
+      aria-hidden="true"
+    >
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+        Restarted your tunnel? Update your T3 Code base URL here so your watch
+        keeps syncing without changing any phone settings.
+      </p>
+      <form id="update-form">
+        <div class="form-group">
+          <label for="update-key">Device Key</label>
+          <input
+            type="text"
+            id="update-key"
+            placeholder="tz_live_..."
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="update-url">New T3 Code base URL</label>
+          <input
+            type="url"
+            id="update-url"
+            placeholder="https://new-tunnel.trycloudflare.com"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+            required
+          />
+        </div>
+        <button type="submit" class="btn-primary">
+          Update Endpoint
+        </button>
+      </form>
+      <div
+        id="update-status"
+        class="status-msg"
+        role="status"
+        aria-live="polite"
+        style="display: none;"
+      ></div>
+    </div>
+
+    <div
+      id="tab-revoke"
+      class="card"
+      role="tabpanel"
+      aria-labelledby="tab-button-revoke"
+      style="display: none;"
+      aria-hidden="true"
+    >
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+        Permanently delete a Device Key from the gateway. The watch will be
+        disconnected.
+      </p>
+      <form id="revoke-form">
+        <div class="form-group">
+          <label for="revoke-key">Device Key to Revoke</label>
+          <input
+            type="text"
+            id="revoke-key"
+            placeholder="tz_live_..."
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+            required
+          />
+        </div>
+        <button type="submit" class="btn-danger">
+          Revoke Key
+        </button>
+      </form>
+      <div
+        id="revoke-status"
+        class="status-msg"
+        role="status"
+        aria-live="polite"
+        style="display: none;"
+      ></div>
+    </div>
+
+    <aside class="pair-aside" aria-label="How pairing works">
+      <div class="aside-kicker">A short, secure handoff</div>
+      <ol class="aside-steps">
+        <li>
+          <span>01</span>
+          <div>
+            <strong>Connect your server</strong>
+            <small>Use an HTTPS tunnel to your T3 Code instance.</small>
+          </div>
+        </li>
+        <li>
+          <span>02</span>
+          <div>
+            <strong>Issue a scoped token</strong>
+            <small>
+              Only diagnostics and orchestration read access are needed.
+            </small>
+          </div>
+        </li>
+        <li>
+          <span>03</span>
+          <div>
+            <strong>Pair in Zepp</strong>
+            <small>The phone exchanges a short code for a device key.</small>
+          </div>
+        </li>
+      </ol>
+      <div class="aside-note">
+        <i aria-hidden="true"></i>
+        <span>
+          Only T-Rex 3 compatibility is confirmed. Other watch models are
+          illustrative.
+        </span>
+      </div>
+    </aside>
+
+  </main>
+
+  <SiteFooter page="pair" />
+
+  <script>
+    import "../scripts/pairing.js";
+  </script>
+</SiteLayout>
